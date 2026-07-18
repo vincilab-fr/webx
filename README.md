@@ -1,91 +1,62 @@
-# KodPix (`kdx`)
+# WebX
 
-KodPix is a compiled language and toolchain written in x86-64 NASM assembly.
-It currently targets Linux ELF output and focuses on deterministic compiler behavior
-and clear error signaling.
+> A compiled web programming language built on the shoulders of [KDX](https://github.com/yugmerabtene/KDX).
 
-## Why KodPix
+## Origin
 
-- Assembly-first compiler architecture
-- C-like syntax with evolving modernized declarations
-- End-to-end pipeline: `.kdx -> .s/.o -> ELF binary`
-- Structured quality gates for open-source collaboration
+WebX is a fork of [KDX (KodPix)](https://github.com/yugmerabtene/KDX), a compiled language and toolchain written in x86-64 NASM assembly by [Yug Merabtene](https://github.com/yugmerabtene). KDX provides the foundation: a compiler pipeline (.kdx -> .s/.o -> ELF binary), lexer, parser, AST, semantic analysis, and code generation -- all in assembly.
 
-## Quick Start
+WebX takes this architecture and redirects it toward the web. The goal is to let you write business logic, CSS styling, and JavaScript interactivity in a single compiled language, then output HTML, CSS, and JavaScript. The compiler backend stays in assembly for performance.
+
+**This project would not exist without Yug Merabtene's work on KDX.** The compiler architecture, the assembly-first approach, and the quality gates are all inherited from KDX.
+
+## What WebX Is
+
+- A compiled programming language with C-like syntax
+- Compiler written in x86-64 NASM assembly (inherited from KDX)
+- Targets web output: HTML structure, CSS styling, JavaScript behavior
+- Also supports native binary output (Linux ELF, like KDX)
+- Write one source file, get a complete web page or native program
+
+## Project Structure
+
+```
+src/           Compiler source (NASM assembly)
+lib/           Standard library modules
+docs/          Language reference, design docs
+examples/      Example WebX programs
+quick_tests/   Test scripts
+```
+
+## Building
 
 ### Requirements
 
 - Linux x86-64
 - NASM 2.15+
-- GNU `ld` (binutils)
+- GNU ld (binutils)
 
-### Build
+### Build the compiler
 
 ```bash
 ./build.sh
 ```
 
-### Compile and Run
+### Compile a WebX file
 
 ```bash
-./kdx examples/hello.kdx -o hello
-./hello
+# Native binary
+./webx examples/hello.webx -o hello
+
+# Web output (HTML/CSS/JS)
+./webx examples/app.webx --target web -o dist/
 ```
 
-### Common Modes
+## Credits
 
-```bash
-# Assembly only
-./kdx examples/hello.kdx -S -o hello.s
+- **[Yug Merabtene](https://github.com/yugmerabtene)** -- Original author of [KDX (KodPix)](https://github.com/yugmerabtene/KDX), which this project is forked from. The entire compiler architecture, assembly-first design, and quality infrastructure come from KDX.
+- **Samy Alderson** -- WebX adaptation, web target development, and ongoing maintenance.
 
-# Object only
-./kdx examples/hello.kdx -c -o hello.o
-```
+## License
 
-## CLI Reference
-
-```bash
-kdx [options] <input.kdx>
-```
-
-- `-S` emit assembly only
-- `-c` emit object only
-- `-o <file>` set output path
-- `-x` execute after successful build
-- `-h`, `--help` show help
-
-## Language Documentation
-
-- `docs/language/getting-started.md`
-- `docs/language/reference.md`
-- `docs/language/error-codes.md`
-- `docs/language/cookbook.md`
-- `docs/language/roadmap-compatibility.md`
-
-## CI and Quality Gates
-
-The repository uses structured CI with required quality gates:
-
-- build
-- full test suite
-- quick suite
-- spec suite
-- runtime oracle
-- secret scan
-
-CI workflow: `.github/workflows/ci.yml`
-
-## Branching and Release Discipline
-
-Recommended workflow:
-
-- `main`
-- `feature/*`
-
-Detailed strategy: `docs/dev/branching-strategy.md`
-Feature branch catalog: `docs/dev/feature-branch-catalog.md`
-
-## Project Status
-
-KodPix is under active development with stable core validation loops and continuous
-improvement of syntax, codegen, and release readiness automation.
+GPLv3 (inherited from KDX)
