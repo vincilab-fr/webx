@@ -1,0 +1,8 @@
+fn main() -> i32 {
+    let a: i32 = 5;
+    let b: i32 = 5;
+    if a == b {
+        println("a is equal to b");
+    }
+    return 0;
+}
