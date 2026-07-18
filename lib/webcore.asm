@@ -1,77 +1,163 @@
+; lib/webcore.asm - WebX standard web library
+; functions for HTML generation, CSS handling, JS interop
+;
+; This file is part of the WebX compiler, a fork of KDX (KodPix) by Yug Merabtene.
+; I've adapted it toward web output, but the core assembly-first design remains the same.
+; Thanks to Yug for the original work - this wouldn't be possible without KDX.
+
 section .data
-; WebX standard web library constants
-html_doctype db 'DOCTYPE html', 0
-html_html_tag db '<html>', 0
-html_head_tag db '<head>', 0
-html_title_tag db '<title>', 0
-html_body_tag db '<body>', 0
-html_script_tag db '<script>', 0
-html_style_tag db '<style>', 0
-html_link_tag db '<link rel="stylesheet" href="', 0
+    ; HTML tags
+    html_tag db 'html', 0
+    head_tag db 'head', 0
+    body_tag db 'body', 0
+    ; CSS properties
+    color_prop db 'color', 0
+    background_prop db 'background-color', 0
+    ; JS keywords
+    let_kw db 'let', 0
+    const_kw db 'const', 0
 
 section .text
-; web_init - initializes web library
-global web_init
+    global web_init
+    global html_open
+    global html_close
+    global css_property
+    global js_variable
+
 web_init:
-    ; set up web library state
-    mov rax, 0 ; not proud of this but it works
+    ; Initialize the web library
+    ; This is called once at the start of the program
+    ; Not much to do here, but it's a good place to put any future init code
     ret
 
-; html_open - opens HTML document
-global html_open
 html_open:
-    ; write doctype declaration
-    mov rsi, html_doctype
-    call write_string
-    ; write html tag
-    mov rsi, html_html_tag
-    call write_string
-    ; write head tag
-    mov rsi, html_head_tag
-    call write_string
+    ; Open an HTML tag
+    ; Args: tag name (string)
+    ; Returns: none
+    push rbp
+    mov rbp, rsp
+    sub rsp, 16
+    ; Save the tag name
+    mov [rbp - 8], rdi
+    ; Print the opening tag
+    mov rsi, [rbp - 8]
+    mov rdx, 0
+    call print_string
+    mov rsi, html_tag
+    mov rdx, 5
+    call print_string
+    ; This was tricky - getting the tag name to print correctly
+    mov byte [rbp - 16], '>'
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    leave
     ret
 
-; html_close - closes HTML document
-global html_close
 html_close:
-    ; write body tag
-    mov rsi, html_body_tag
-    call write_string
-    ; write script tag
-    mov rsi, html_script_tag
-    call write_string
-    ; write style tag
-    mov rsi, html_style_tag
-    call write_string
-    ; write link tag
-    mov rsi, html_link_tag
-    call write_string
+    ; Close an HTML tag
+    ; Args: tag name (string)
+    ; Returns: none
+    push rbp
+    mov rbp, rsp
+    sub rsp, 16
+    ; Save the tag name
+    mov [rbp - 8], rdi
+    ; Print the closing tag
+    mov byte [rbp - 16], '<'
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    mov rsi, html_tag
+    mov rdx, 5
+    call print_string
+    mov byte [rbp - 16], '>'
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    leave
     ret
 
-; write_string - writes string to output
-global write_string
-write_string:
-    ; this was tricky - had to use sys_write
-    mov rax, 1 ; sys_write
-    mov rdi, 1 ; file descriptor (stdout)
-    mov rdx, 20 ; string length (approximate)
+css_property:
+    ; Set a CSS property
+    ; Args: property name (string), value (string)
+    ; Returns: none
+    push rbp
+    mov rbp, rsp
+    sub rsp, 32
+    ; Save the property name and value
+    mov [rbp - 8], rdi
+    mov [rbp - 16], rsi
+    ; Print the property name
+    mov rsi, [rbp - 8]
+    mov rdx, 0
+    call print_string
+    ; Print the colon and space
+    mov byte [rbp - 32], ':'
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    mov byte [rbp - 32], ' '
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    ; Print the value
+    mov rsi, [rbp - 16]
+    mov rdx, 0
+    call print_string
+    ; Print the semicolon
+    mov byte [rbp - 32], ';'
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    leave
+    ret
+
+js_variable:
+    ; Declare a JS variable
+    ; Args: variable name (string), value (string)
+    ; Returns: none
+    push rbp
+    mov rbp, rsp
+    sub rsp, 32
+    ; Save the variable name and value
+    mov [rbp - 8], rdi
+    mov [rbp - 16], rsi
+    ; Print the let keyword
+    mov rsi, let_kw
+    mov rdx, 3
+    call print_string
+    ; Print the variable name
+    mov rsi, [rbp - 8]
+    mov rdx, 0
+    call print_string
+    ; Print the equals sign and space
+    mov byte [rbp - 32], '='
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    mov byte [rbp - 32], ' '
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    ; Print the value
+    mov rsi, [rbp - 16]
+    mov rdx, 0
+    call print_string
+    ; Print the semicolon
+    mov byte [rbp - 32], ';'
+    mov rsi, rbp
+    mov rdx, 1
+    call print_string
+    leave
+    ret
+
+print_string:
+    ; Print a string to the output
+    ; Args: string (pointer), length (integer)
+    ; Returns: none
+    ; Not proud of this, but it works for now
+    mov rax, 1
+    mov rdi, 1
     syscall
-    ret
-
-; css_add_rule - adds CSS rule
-global css_add_rule
-css_add_rule:
-    ; not implemented yet - need to add CSS parser
-    ret
-
-; js_add_script - adds JavaScript script
-global js_add_script
-js_add_script:
-    ; not implemented yet - need to add JS parser
-    ret
-
-; interop_call - calls JavaScript function from WebX
-global interop_call
-interop_call:
-    ; this is a complex one - need to set up JS context
     ret
