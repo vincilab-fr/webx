@@ -1,0 +1,1 @@
+fn main() -> i32 { let x: string = 5; return 0; }
