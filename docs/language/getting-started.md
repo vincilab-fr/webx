@@ -19,7 +19,7 @@ The compiler binary is created as `./kdx`.
 ## Compile and Run a Program
 
 ```bash
-./kdx examples/hello.kdx -o hello
+./kdx examples/hello.webx -o hello
 ./hello
 ```
 
@@ -28,13 +28,13 @@ The compiler binary is created as `./kdx`.
 - Assembly only:
 
 ```bash
-./kdx examples/hello.kdx -S -o hello.s
+./kdx examples/hello.webx -S -o hello.s
 ```
 
 - Object only:
 
 ```bash
-./kdx examples/hello.kdx -c -o hello.o
+./kdx examples/hello.webx -c -o hello.o
 ```
 
 ## First Program

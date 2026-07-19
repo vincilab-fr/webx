@@ -4,7 +4,7 @@
 
 ## Origin
 
-WebX is a fork of [KDX (KodPix)](https://github.com/yugmerabtene/KDX), a compiled language and toolchain written in x86-64 NASM assembly by [Yug Merabtene](https://github.com/yugmerabtene). KDX provides the foundation: a compiler pipeline (.kdx -> .s/.o -> ELF binary), lexer, parser, AST, semantic analysis, and code generation -- all in assembly.
+WebX is a fork of [KDX (KodPix)](https://github.com/yugmerabtene/KDX), a compiled language and toolchain written in x86-64 NASM assembly by [Yug Merabtene](https://github.com/yugmerabtene). KDX provides the foundation: a compiler pipeline (.webx -> .s/.o -> ELF binary), lexer, parser, AST, semantic analysis, and code generation -- all in assembly.
 
 WebX takes this architecture and redirects it toward the web. The goal is to let you write business logic, CSS styling, and JavaScript interactivity in a single compiled language, then output HTML, CSS, and JavaScript. The compiler backend stays in assembly for performance.
 

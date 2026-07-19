@@ -49,50 +49,50 @@ echo "[spec] building compiler"
 ./build.sh >/dev/null
 
 echo "[spec] baseline pass cases"
-expect_compile_ok "quick_tests/spec/pass/p01_function_arrow_baseline.kdx" "/tmp/spec_p01.bin"
+expect_compile_ok "quick_tests/spec/pass/p01_function_arrow_baseline.webx" "/tmp/spec_p01.bin"
 chmod +x /tmp/spec_p01.bin
 expect_program_exit 5 "/tmp/spec_p01.bin"
 
-expect_compile_ok "quick_tests/spec/pass/p02_increment_runtime.kdx" "/tmp/spec_p02.bin"
+expect_compile_ok "quick_tests/spec/pass/p02_increment_runtime.webx" "/tmp/spec_p02.bin"
 chmod +x /tmp/spec_p02.bin
 expect_program_exit 3 "/tmp/spec_p02.bin"
 
-expect_compile_ok "quick_tests/spec/pass/p03_print_and_return.kdx" "/tmp/spec_p03.bin"
+expect_compile_ok "quick_tests/spec/pass/p03_print_and_return.webx" "/tmp/spec_p03.bin"
 chmod +x /tmp/spec_p03.bin
 expect_program_exit 0 "/tmp/spec_p03.bin"
 
-expect_compile_ok "quick_tests/spec/pass/p04_new_header_main.kdx" "/tmp/spec_p04.bin"
+expect_compile_ok "quick_tests/spec/pass/p04_new_header_main.webx" "/tmp/spec_p04.bin"
 chmod +x /tmp/spec_p04.bin
 expect_program_exit 8 "/tmp/spec_p04.bin"
 
-expect_compile_ok "quick_tests/spec/pass/p05_typed_params_header.kdx" "/tmp/spec_p05.bin"
+expect_compile_ok "quick_tests/spec/pass/p05_typed_params_header.webx" "/tmp/spec_p05.bin"
 chmod +x /tmp/spec_p05.bin
 expect_program_exit 0 "/tmp/spec_p05.bin"
 
-expect_compile_ok "quick_tests/spec/pass/p06_strict_equality.kdx" "/tmp/spec_p06.bin"
+expect_compile_ok "quick_tests/spec/pass/p06_strict_equality.webx" "/tmp/spec_p06.bin"
 chmod +x /tmp/spec_p06.bin
 expect_program_exit 0 "/tmp/spec_p06.bin"
 
-expect_compile_ok "quick_tests/spec/pass/p07_new_signature_call.kdx" "/tmp/spec_p07.bin"
+expect_compile_ok "quick_tests/spec/pass/p07_new_signature_call.webx" "/tmp/spec_p07.bin"
 chmod +x /tmp/spec_p07.bin
 expect_program_exit 9 "/tmp/spec_p07.bin"
 
-expect_compile_ok "quick_tests/spec/pass/p08_class_main_void.kdx" "/tmp/spec_p08.bin"
+expect_compile_ok "quick_tests/spec/pass/p08_class_main_void.webx" "/tmp/spec_p08.bin"
 chmod +x /tmp/spec_p08.bin
 expect_program_exit 0 "/tmp/spec_p08.bin"
 
 echo "[spec] baseline syntax fail cases"
-expect_compile_fail "quick_tests/spec/fail/f01_malformed_header.kdx"
-expect_compile_fail "quick_tests/spec/fail/f02_bad_token.kdx"
+expect_compile_fail "quick_tests/spec/fail/f01_malformed_header.webx"
+expect_compile_fail "quick_tests/spec/fail/f02_bad_token.webx"
 
 if [[ "$TARGET_MODE" -eq 1 ]]; then
   echo "[spec] target mode (future cases must compile)"
-  expect_compile_ok "quick_tests/spec/future/t04_array_decl.kdx" "/tmp/spec_t04.bin"
-  expect_compile_ok "quick_tests/spec/future/t05_switch_minimal.kdx" "/tmp/spec_t05.bin"
+  expect_compile_ok "quick_tests/spec/future/t04_array_decl.webx" "/tmp/spec_t04.bin"
+  expect_compile_ok "quick_tests/spec/future/t05_switch_minimal.webx" "/tmp/spec_t05.bin"
 else
   echo "[spec] tracking mode (future cases expected to fail for now)"
-  expect_compile_fail "quick_tests/spec/future/t04_array_decl.kdx"
-  expect_compile_fail "quick_tests/spec/future/t05_switch_minimal.kdx"
+  expect_compile_fail "quick_tests/spec/future/t04_array_decl.webx"
+  expect_compile_fail "quick_tests/spec/future/t05_switch_minimal.webx"
 fi
 
 echo "[spec] all checks passed"
