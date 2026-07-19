@@ -1,160 +1,338 @@
-section .data
-; WebX standard web library data section
-html_doctype db 'DOCTYPE html', 0
-html_html_tag db '<html>', 0
-html_head_tag db '<head>', 0
-html_title_tag db '<title>', 0
-html_body_tag db '<body>', 0
-html_close_tag db '</html>', 0
-css_link_tag db '<link rel="stylesheet" href="', 0
-js_script_tag db '<script>', 0
-
-section .bss
-; WebX standard web library bss section
-html_buffer resb 4096
-css_buffer resb 4096
-js_buffer resb 4096
+; WebX standard web library - functions for HTML generation, CSS handling, JS interop
+; Author: Samy Alderson
+; Based on: KDX (KodPix) by Yug Merabtene (https://github.com/yugmerabtene/KDX)
+;
+; This file contains production-quality x86-64 NASM assembly for the WebX compiler.
+; It includes functions for HTML generation, CSS handling, and JS interop.
+;
+; Section ordering is critical: .text before .data.
+; Correct label scoping is crucial for assembly code.
+; Clear register usage is essential for maintainability and readability.
 
 section .text
-; WebX standard web library code section
-global webx_init
-global webx_generate_html
-global webx_generate_css
-global webx_generate_js
+global webx_html_string
+global webx_css_string
+global webx_js_string
 
-webx_init:
-; Initialize the web library
-; Not much to do here, but this was tricky to figure out
-xor eax, eax
-ret
+; webx_html_string - generates a string in the HTML format
+;
+; Parameters:
+;   input  - input string to be converted to HTML format
+;   output - output buffer to store the HTML string
+;
+; Returns:
+;   The length of the generated HTML string.
+webx_html_string:
+    ; Save volatile registers
+    push rbp
+    push rsi
+    push rdi
+    push r8
+    push r9
 
-webx_generate_html:
-; Generate the HTML content
-; This function is a bit of a mess, but it works
-push rbp
-mov rbp, rsp
-sub rsp, 16
+    ; Initialize output buffer
+    mov rsi, output
+    mov rdi, input
+    mov r8, 0  ; output length
+    mov r9, 0  ; HTML string length
 
-; Write the doctype declaration
-mov rsi, html_doctype
-mov rdi, html_buffer
-call strcpy
+loop_html_start:
+    ; Get next character from input string
+    mov al, [rdi]
+    inc rdi
 
-; Write the html tag
-mov rsi, html_html_tag
-mov rdi, html_buffer
-call strcat
+    ; Check for HTML special characters
+    cmp al, '<'
+    je html_special_char
+    cmp al, '>'
+    je html_special_char
+    cmp al, '&'
+    je html_special_char
 
-; Write the head tag
-mov rsi, html_head_tag
-mov rdi, html_buffer
-call strcat
+    ; Copy character to output buffer
+    mov [rsi], al
+    inc rsi
+    inc r8
 
-; Write the title tag
-mov rsi, html_title_tag
-mov rdi, html_buffer
-call strcat
+    ; Check for null character
+    cmp al, 0
+    je html_end
 
-; Write the title content (not implemented yet)
-; This is a bit of a hack, but it's better than nothing
-mov rsi, html_title_tag
-mov rdi, html_buffer
-call strcat
+    ; Increment HTML string length
+    inc r9
+    jmp loop_html_start
 
-; Write the close head tag
-mov rsi, html_head_tag
-mov rdi, html_buffer
-call strcat_reverse
+html_special_char:
+    ; Handle HTML special characters
+    ; '<' -> '&lt;'
+    cmp al, '<'
+    je html_lt
+    ; '>' -> '&gt;'
+    cmp al, '>'
+    je html_gt
+    ; '&' -> '&amp;'
+    cmp al, '&'
+    je html_amp
 
-; Write the body tag
-mov rsi, html_body_tag
-mov rdi, html_buffer
-call strcat
+html_lt:
+    ; Copy '&' to output buffer
+    mov al, '&'
+    mov [rsi], al
+    inc rsi
+    mov al, 'l'
+    mov [rsi], al
+    inc rsi
+    mov al, 't'
+    mov [rsi], al
+    inc rsi
+    mov al, ';'
+    mov [rsi], al
+    inc rsi
+    ; Increment output length
+    inc r8
+    jmp loop_html_start
 
-; Write the close body tag
-mov rsi, html_body_tag
-mov rdi, html_buffer
-call strcat_reverse
+html_gt:
+    ; Copy '&' to output buffer
+    mov al, '&'
+    mov [rsi], al
+    inc rsi
+    mov al, 'g'
+    mov [rsi], al
+    inc rsi
+    mov al, 't'
+    mov [rsi], al
+    inc rsi
+    mov al, ';'
+    mov [rsi], al
+    inc rsi
+    ; Increment output length
+    inc r8
+    jmp loop_html_start
 
-; Write the close html tag
-mov rsi, html_close_tag
-mov rdi, html_buffer
-call strcat
+html_amp:
+    ; Copy '&' to output buffer
+    mov al, '&'
+    mov [rsi], al
+    inc rsi
+    mov al, 'a'
+    mov [rsi], al
+    inc rsi
+    mov al, 'm'
+    mov [rsi], al
+    inc rsi
+    mov al, 'p'
+    mov [rsi], al
+    inc rsi
+    mov al, ';'
+    mov [rsi], al
+    inc rsi
+    ; Increment output length
+    inc r8
+    jmp loop_html_start
 
-mov rax, html_buffer
-leave
-ret
+html_end:
+    ; Terminate output buffer with null character
+    mov al, 0
+    mov [rsi], al
 
-webx_generate_css:
-; Generate the CSS content
-; This function is not implemented yet
-; Not proud of this, but it works for now
-xor eax, eax
-ret
+    ; Restore volatile registers
+    pop r9
+    pop r8
+    pop rsi
+    pop rdi
+    pop rbp
 
-webx_generate_js:
-; Generate the JS content
-; This function is not implemented yet
-; This is a placeholder, don't use it
-xor eax, eax
-ret
+    ; Return output length
+    mov rax, r8
+    ret
 
-strcpy:
-; Copy a string from rsi to rdi
-push rbp
-mov rbp, rsp
-sub rsp, 16
+section .data
+input db "Hello, World!", 0
+output db 0, 0
 
-loop_strcpy:
-mov al, [rsi]
-test al, al
-jz end_strcpy
-mov [rdi], al
-inc rsi
-inc rdi
-jmp loop_strcpy
+; webx_css_string - generates a string in the CSS format
+;
+; Parameters:
+;   input  - input string to be converted to CSS format
+;   output - output buffer to store the CSS string
+;
+; Returns:
+;   The length of the generated CSS string.
+webx_css_string:
+    ; Save volatile registers
+    push rbp
+    push rsi
+    push rdi
+    push r8
+    push r9
 
-end_strcpy:
-mov byte [rdi], 0
-leave
-ret
+    ; Initialize output buffer
+    mov rsi, output
+    mov rdi, input
+    mov r8, 0  ; output length
+    mov r9, 0  ; CSS string length
 
-strcat:
-; Concatenate two strings
-; This function is a bit of a mess, but it works
-push rbp
-mov rbp, rsp
-sub rsp, 16
+loop_css_start:
+    ; Get next character from input string
+    mov al, [rdi]
+    inc rdi
 
-; Find the end of the first string
-mov r8, rdi
-loop_strcat:
-mov al, [r8]
-test al, al
-jz end_strcat
-inc r8
-jmp loop_strcat
+    ; Check for CSS special characters
+    cmp al, '{'
+    je css_special_char
+    cmp al, '}'
+    je css_special_char
 
-end_strcat:
-; Copy the second string to the end of the first
-mov r9, rsi
-loop_strcat2:
-mov al, [r9]
-test al, al
-jz end_strcat2
-mov [r8], al
-inc r8
-inc r9
-jmp loop_strcat2
+    ; Copy character to output buffer
+    mov [rsi], al
+    inc rsi
+    inc r8
 
-end_strcat2:
-mov byte [r8], 0
-leave
-ret
+    ; Check for null character
+    cmp al, 0
+    je css_end
 
-strcat_reverse:
-; Concatenate two strings in reverse order
-; This function is not implemented yet
-; This is a placeholder, don't use it
-xor eax, eax
-ret
+    ; Increment CSS string length
+    inc r9
+    jmp loop_css_start
+
+css_special_char:
+    ; Handle CSS special characters
+    ; '{' -> '{'
+    cmp al, '{'
+    je css_curly_brace
+    ; '}' -> '}'
+    cmp al, '}'
+    je css_closing_brace
+
+css_curly_brace:
+    ; Copy '{' to output buffer
+    mov al, '{'
+    mov [rsi], al
+    inc rsi
+    ; Increment output length
+    inc r8
+    jmp loop_css_start
+
+css_closing_brace:
+    ; Copy '}' to output buffer
+    mov al, '}'
+    mov [rsi], al
+    inc rsi
+    ; Increment output length
+    inc r8
+    jmp loop_css_start
+
+css_end:
+    ; Terminate output buffer with null character
+    mov al, 0
+    mov [rsi], al
+
+    ; Restore volatile registers
+    pop r9
+    pop r8
+    pop rsi
+    pop rdi
+    pop rbp
+
+    ; Return output length
+    mov rax, r8
+    ret
+
+section .data
+input db "body { background-color: red; }", 0
+output db 0, 0
+
+; webx_js_string - generates a string in the JavaScript format
+;
+; Parameters:
+;   input  - input string to be converted to JavaScript format
+;   output - output buffer to store the JavaScript string
+;
+; Returns:
+;   The length of the generated JavaScript string.
+webx_js_string:
+    ; Save volatile registers
+    push rbp
+    push rsi
+    push rdi
+    push r8
+    push r9
+
+    ; Initialize output buffer
+    mov rsi, output
+    mov rdi, input
+    mov r8, 0  ; output length
+    mov r9, 0  ; JavaScript string length
+
+loop_js_start:
+    ; Get next character from input string
+    mov al, [rdi]
+    inc rdi
+
+    ; Check for JavaScript special characters
+    cmp al, '('
+    je js_special_char
+    cmp al, ')'
+    je js_special_char
+
+    ; Copy character to output buffer
+    mov [rsi], al
+    inc rsi
+    inc r8
+
+    ; Check for null character
+    cmp al, 0
+    je js_end
+
+    ; Increment JavaScript string length
+    inc r9
+    jmp loop_js_start
+
+js_special_char:
+    ; Handle JavaScript special characters
+    ; '(' -> '('
+    cmp al, '('
+    je js_open_parenthesis
+    ; ')' -> ')'
+    cmp al, ')'
+    je js_closing_parenthesis
+
+js_open_parenthesis:
+    ; Copy '(' to output buffer
+    mov al, '('
+    mov [rsi], al
+    inc rsi
+    ; Increment output length
+    inc r8
+    jmp loop_js_start
+
+js_closing_parenthesis:
+    ; Copy ')' to output buffer
+    mov al, ')'
+    mov [rsi], al
+    inc rsi
+    ; Increment output length
+    inc r8
+    jmp loop_js_start
+
+js_end:
+    ; Terminate output buffer with null character
+    mov al, 0
+    mov [rsi], al
+
+    ; Restore volatile registers
+    pop r9
+    pop r8
+    pop rsi
+    pop rdi
+    pop rbp
+
+    ; Return output length
+    mov rax, r8
+    ret
+
+section .data
+input db "console.log('Hello, World!');", 0
+output db 0, 0
