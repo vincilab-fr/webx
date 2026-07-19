@@ -1,69 +1,62 @@
 section .text
-global printf
-printf:
-    ; printf function to output a formatted string
-    ; This is a simplified version for now
-    ; WebX will need a more robust version
-    ; that handles formatting and escapes
+global html_init
+global css_init
+global js_init
+global html_close
 
-    ; Load the format string
-    mov rsi, rdi
-
-    ; Load the string to print
-    mov rdi, fmt_str
-    ; Load the format string address into rsi
-    mov rsi, rdi
-
-    ; Call the libc printf function
-    mov rax, 0x2000004
+html_init:
+    ; Initialize HTML generator
+    ; Create HTML header with doctype, title, and charset
+    mov rax, 1            ; sys_write
+    mov rdi, 1            ; stdout
+    mov rsi, html_header  ; string to write
+    mov rdx, html_header_len
     syscall
 
-    ; Return success
+    ; Initialize CSS generator (empty for now)
+    ; Create <style> tag
+    mov rax, 1            ; sys_write
+    mov rdi, 1            ; stdout
+    mov rsi, css_header   ; string to write
+    mov rdx, css_header_len
+    syscall
+    ret
+
+css_init:
+    ; Initialize CSS generator
+    ; Create empty <style> tag
+    ; (no-op for now, just a placeholder)
+    ret
+
+js_init:
+    ; Initialize JavaScript generator
+    ; Create <script> tag
+    mov rax, 1            ; sys_write
+    mov rdi, 1            ; stdout
+    mov rsi, js_header    ; string to write
+    mov rdx, js_header_len
+    syscall
+    ret
+
+html_close:
+    ; Close HTML document
+    ; Create </html> tag
+    mov rax, 1            ; sys_write
+    mov rdi, 1            ; stdout
+    mov rsi, html_footer  ; string to write
+    mov rdx, html_footer_len
+    syscall
     ret
 
 section .data
-fmt_str db "Hello, World!", 0
+html_header db '<!DOCTYPE html><html><head><title>WebX</title><meta charset="utf-8">', 0
+html_header_len equ $ - html_header
 
-; WebX standard library functions
+css_header db '<style>', 0
+css_header_len equ $ - css_header
 
-; HTML generation
+js_header db '<script>', 0
+js_header_len equ $ - js_header
 
-global html_tag
-html_tag:
-    ; Tag is a string
-    ; We will add more HTML functions later
-    ; For now, we just return the tag
-    ; and the user needs to add the rest
-    mov rdi, rsi
-    ret
-
-; CSS handling
-
-global css_rule
-css_rule:
-    ; CSS rule is a string
-    ; We will add more CSS functions later
-    ; For now, we just return the rule
-    ; and the user needs to add the rest
-    mov rdi, rsi
-    ret
-
-; JavaScript interop
-
-global js_import
-js_import:
-    ; Import a JavaScript module
-    ; We will add more JavaScript functions later
-    ; For now, we just return the module
-    ; and the user needs to add the rest
-    mov rdi, rsi
-    ret
-
-global js_eval
-js_eval:
-    ; Evaluate a JavaScript expression
-    ; We will add more JavaScript functions later
-    ; For now, we just return the result
-    ; and the user needs to add the rest
-    mov rdi, rsi
-    ret
+html_footer db '</html>', 0
+html_footer_len equ $ - html_footer
