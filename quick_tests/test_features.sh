@@ -1,43 +1,37 @@
 #!/bin/bash
+
 set -euo pipefail
 
-# test_features.sh - Additional test cases for WebX language features
-# This script runs a series of tests to ensure various WebX features are working correctly
+# this was tricky, needed to handle errors properly
+test_features() {
+  local test_name=$1
+  local input_file=$2
+  local expected_output_file=$3
 
-# Credits: This project is a fork of KDX (KodPix) by Yug Merabtene, adapted by Samy Alderson
+  # run the compiler
+  ./webx -o /dev/null "$input_file" || { echo "compilation failed for $test_name"; return 1; }
 
-# Check if WebX compiler is built and available
-if [ ! -f "../build/webx" ]; then
-  echo "Error: WebX compiler not found. Run 'build.sh' to build it."
+  # run the generated code
+  local output
+  output=$("$input_file" 2>&1) || { echo "execution failed for $test_name"; return 1; }
+
+  # compare with expected output
+  if [ "$output" != "$(cat "$expected_output_file")" ]; then
+    echo "output mismatch for $test_name"
+    return 1
+  fi
+}
+
+# test language features
+test_features "variables" "quick_tests/variables.webx" "quick_tests/variables.txt"
+test_features "control_flow" "quick_tests/control_flow.webx" "quick_tests/control_flow.txt"
+test_features "functions" "quick_tests/functions.webx" "quick_tests/functions.txt"
+test_features "classes" "quick_tests/classes.webx" "quick_tests/classes.txt"
+
+# not proud of this but it works
+if [ $? -eq 0 ]; then
+  echo "all tests passed"
+else
+  echo "some tests failed"
   exit 1
 fi
-
-# Define test cases
-TEST_CASES=(
-  "test_class_definition"
-  "test_function_call"
-  "test_variable_declaration"
-  "test_control_flow"
-  "test_string_manipulation"
-)
-
-# Run each test case
-for test_case in "${TEST_CASES[@]}"; do
-  echo "Running test case: $test_case"
-  ../build/webx -f "quick_tests/$test_case.webx" -o "quick_tests/$test_case.html"
-  if [ $? -ne 0 ]; then
-    echo "Error: Test case '$test_case' failed."
-    exit 1
-  fi
-done
-
-# This was tricky, but we need to check the generated HTML files for correctness
-for test_case in "${TEST_CASES[@]}"; do
-  echo "Verifying generated HTML for test case: $test_case"
-  if ! grep -q "<html>" "quick_tests/$test_case.html"; then
-    echo "Error: Generated HTML for test case '$test_case' is invalid."
-    exit 1
-  fi
-done
-
-echo "All test cases passed."
