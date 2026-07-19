@@ -1,51 +1,63 @@
-#!/bin/bash
+#!/bin/bash -euo pipefail
 
-set -euo pipefail
+# test_features.sh
 
-# this script is for additional test cases for WebX language features
-# credit to Yug Merabtene for the original KDX project
+# Set up test directory
+TEST_DIR=$(mktemp -d)
 
-# check if we're in the right directory
-if [ ! -f "build.sh" ]; then
-  echo "error: must run from the project root" >&2
-  exit 1
-fi
-
-# run a single test
-run_test() {
-  local test_name="$1"
-  local test_file="quick_tests/$test_name.webx"
-  if [ ! -f "$test_file" ]; then
-    echo "error: test file not found: $test_file" >&2
-    return 1
-  fi
-
-  # compile the test
-  ./build.sh "$test_file"
-
-  # run the compiled test
-  local output_file="${test_name%.webx}.out"
-  ./quick_tests/"$test_name" > "$output_file"
-
-  # check the output
-  local expected_file="${test_name%.webx}.expected"
-  if [ -f "$expected_file" ]; then
-    diff -u "$expected_file" "$output_file"
-    if [ $? -ne 0 ]; then
-      echo "error: test failed: $test_name" >&2
-      return 1
-    fi
-  fi
+# Create test files
+cat > ${TEST_DIR}/test_functions.webx <<EOF
+fn add(a: i32, b: i32) -> i32 {
+  return a + b;
 }
 
-# run all tests
-for test_file in quick_tests/*.webx; do
-  local test_name="${test_file##*/}"
-  test_name="${test_name%.webx}"
-  echo "running test: $test_name"
-  if ! run_test "$test_name"; then
-    exit 1
-  fi
-done
+fn main() -> i32 {
+  println("Hello, World!");
+  let result = add(2, 3);
+  println(result);
+  return result;
+}
+EOF
 
-echo "all tests passed"
+cat > ${TEST_DIR}/test_let.webx <<EOF
+fn main() -> i32 {
+  let x = 5;
+  let y = 10;
+  println(x);
+  println(y);
+  return x + y;
+}
+EOF
+
+cat > ${TEST_DIR}/test_if.webx <<EOF
+fn main() -> i32 {
+  if true {
+    println("It's true!");
+  } else {
+    println("It's false!");
+  }
+  return 0;
+}
+EOF
+
+cat > ${TEST_DIR}/test_while.webx <<EOF
+fn main() -> i32 {
+  let x = 0;
+  while x < 5 {
+    println(x);
+    x = x + 1;
+  }
+  return 0;
+}
+EOF
+
+# Build WebX
+./build.sh ${TEST_DIR}/test_functions.webx ${TEST_DIR}/test_let.webx ${TEST_DIR}/test_if.webx ${TEST_DIR}/test_while.webx
+
+# Run tests
+./test.sh ${TEST_DIR}
+
+# Clean up
+rm -rf ${TEST_DIR}
+
+echo "Feature tests passed!"
