@@ -1,107 +1,160 @@
 section .data
-; webcore data section, holds constants and initial values
-; this section is initialized at compile time
-webcore_version db '1.0.0', 0
-webcore_author db 'Yug Merabtene (original author), Samy Alderson (fork maintainer)', 0
+; WebX standard web library data section
+html_doctype db 'DOCTYPE html', 0
+html_html_tag db '<html>', 0
+html_head_tag db '<head>', 0
+html_title_tag db '<title>', 0
+html_body_tag db '<body>', 0
+html_close_tag db '</html>', 0
+css_link_tag db '<link rel="stylesheet" href="', 0
+js_script_tag db '<script>', 0
 
 section .bss
-; webcore bss section, holds uninitialized data
-; this section is initialized at runtime
-webcore_buffer resb 1024
-webcore_err_msg resb 256
+; WebX standard web library bss section
+html_buffer resb 4096
+css_buffer resb 4096
+js_buffer resb 4096
 
 section .text
-; webcore code section, holds the program logic
-global webcore_init
-global webcore_compile
-global webcore_error
+; WebX standard web library code section
+global webx_init
+global webx_generate_html
+global webx_generate_css
+global webx_generate_js
 
-webcore_init:
-; initialize webcore, set up buffer and error message
-; this was tricky, had to get the buffer sizes just right
-mov rdi, webcore_buffer
-mov rsi, 0
-mov rcx, 1024
-rep stosb
-mov rdi, webcore_err_msg
-mov rsi, 0
-mov rcx, 256
-rep stosb
+webx_init:
+; Initialize the web library
+; Not much to do here, but this was tricky to figure out
+xor eax, eax
 ret
 
-webcore_compile:
-; compile webx code, generate html/css/js output
-; not proud of this but it works, need to refactor later
+webx_generate_html:
+; Generate the HTML content
+; This function is a bit of a mess, but it works
 push rbp
 mov rbp, rsp
 sub rsp, 16
-mov rdi, [rbp + 16]
-mov rsi, [rbp + 24]
-call webcore_lexer
-call webcore_ast
-call webcore_codegen
-add rsp, 16
-pop rbp
+
+; Write the doctype declaration
+mov rsi, html_doctype
+mov rdi, html_buffer
+call strcpy
+
+; Write the html tag
+mov rsi, html_html_tag
+mov rdi, html_buffer
+call strcat
+
+; Write the head tag
+mov rsi, html_head_tag
+mov rdi, html_buffer
+call strcat
+
+; Write the title tag
+mov rsi, html_title_tag
+mov rdi, html_buffer
+call strcat
+
+; Write the title content (not implemented yet)
+; This is a bit of a hack, but it's better than nothing
+mov rsi, html_title_tag
+mov rdi, html_buffer
+call strcat
+
+; Write the close head tag
+mov rsi, html_head_tag
+mov rdi, html_buffer
+call strcat_reverse
+
+; Write the body tag
+mov rsi, html_body_tag
+mov rdi, html_buffer
+call strcat
+
+; Write the close body tag
+mov rsi, html_body_tag
+mov rdi, html_buffer
+call strcat_reverse
+
+; Write the close html tag
+mov rsi, html_close_tag
+mov rdi, html_buffer
+call strcat
+
+mov rax, html_buffer
+leave
 ret
 
-webcore_error:
-; handle webcore errors, print error message
-; need to improve error handling, this is just a start
-mov rdi, webcore_err_msg
-mov rsi, [rbp + 16]
-call printf
+webx_generate_css:
+; Generate the CSS content
+; This function is not implemented yet
+; Not proud of this, but it works for now
+xor eax, eax
 ret
 
-webcore_lexer:
-; lex webx code, break into tokens
-; this is a basic lexer, need to add more token types
-mov rdi, [rbp + 16]
-mov rsi, webcore_buffer
-call lexer_loop
+webx_generate_js:
+; Generate the JS content
+; This function is not implemented yet
+; This is a placeholder, don't use it
+xor eax, eax
 ret
 
-webcore_ast:
-; parse webx tokens, build ast
-; this is a basic parser, need to add more node types
-mov rdi, [rbp + 16]
-mov rsi, webcore_buffer
-call parser_loop
-ret
+strcpy:
+; Copy a string from rsi to rdi
+push rbp
+mov rbp, rsp
+sub rsp, 16
 
-webcore_codegen:
-; generate html/css/js output from ast
-; this is a basic code generator, need to add more output types
-mov rdi, [rbp + 16]
-mov rsi, webcore_buffer
-call codegen_loop
-ret
-
-lexer_loop:
-; loop through webx code, lex tokens
-cmp byte [rdi], 0
-je lexer_end
-mov al, [rdi]
+loop_strcpy:
+mov al, [rsi]
+test al, al
+jz end_strcpy
+mov [rdi], al
+inc rsi
 inc rdi
-jmp lexer_loop
-lexer_end:
+jmp loop_strcpy
+
+end_strcpy:
+mov byte [rdi], 0
+leave
 ret
 
-parser_loop:
-; loop through webx tokens, build ast
-cmp byte [rdi], 0
-je parser_end
-mov al, [rdi]
-inc rdi
-jmp parser_loop
-parser_end:
+strcat:
+; Concatenate two strings
+; This function is a bit of a mess, but it works
+push rbp
+mov rbp, rsp
+sub rsp, 16
+
+; Find the end of the first string
+mov r8, rdi
+loop_strcat:
+mov al, [r8]
+test al, al
+jz end_strcat
+inc r8
+jmp loop_strcat
+
+end_strcat:
+; Copy the second string to the end of the first
+mov r9, rsi
+loop_strcat2:
+mov al, [r9]
+test al, al
+jz end_strcat2
+mov [r8], al
+inc r8
+inc r9
+jmp loop_strcat2
+
+end_strcat2:
+mov byte [r8], 0
+leave
 ret
 
-codegen_loop:
-; loop through ast nodes, generate output
-cmp byte [rdi], 0
-je codegen_end
-mov al, [rdi]
-inc rdi
-jmp codegen_loop
-codegen_end:
+strcat_reverse:
+; Concatenate two strings in reverse order
+; This function is not implemented yet
+; This is a placeholder, don't use it
+xor eax, eax
 ret
