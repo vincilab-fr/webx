@@ -1,66 +1,75 @@
 section .text
-global _start
+    global _start
 
 _start:
-    ; Load HTML template into memory
-    mov rsi, html_template
-    mov rdi, 0x1000
-    mov eax, 0x1 ; sys_read
+    ; load AST into memory
+    mov rsi, stack_buffer
+    mov rdi, .ast
+    call load_ast
+    test rax, rax
+    jz .err
+
+    ; initialize symbol table
+    mov rsi, symbol_table
+    mov rdi, .symbols
+    call init_symbol_table
+    test rax, rax
+    jz .err
+
+    ; generate assembly code for x86-64 ELF binary
+    mov rsi, assembly_code
+    mov rdi, .code
+    call generate_x86_64_code
+    test rax, rax
+    jz .err
+
+    ; save generated assembly code
+    mov rsi, assembly_code
+    mov rdi, .save
+    call save_assembly
+    test rax, rax
+    jz .err
+
+    ; exit with success code
+    mov rax, 60
+    xor rdi, rdi
     syscall
 
-html_template:
-    db 'html>', 0
-
-; Generate HTML tag
-generate_tag:
-    ; Load tag name into eax
-    mov eax, 0x68 ; 'h'
-    mov [r12], eax ; Store tag name in r12
-    ; Load closing tag name into eax
-    mov eax, 0x68 ; 'h'
-    mov [r13], eax ; Store closing tag name in r13
-
-generate_tag_loop:
-    ; Generate opening tag
-    mov eax, [r12]
-    mov [r12], eax ; Shift tag name to the left
-    sub eax, 0x68 ; Remove last character
-    mov byte [r12], al
-    ; Generate closing tag
-    mov eax, [r13]
-    mov [r13], eax ; Shift closing tag name to the left
-    sub eax, 0x68 ; Remove last character
-    mov byte [r13], al
-    ; Check if tag name is empty
-    cmp byte [r12], 0
-    jz generate_tag_end
-    jmp generate_tag_loop
-
-generate_tag_end:
-    ; Generate HTML document
-    mov rsi, html_document
-    mov rdi, 0x1000
-    mov eax, 0x1 ; sys_write
+.err:
+    ; exit with error code
+    mov rax, 60
+    mov rdi, 1
     syscall
-
-html_document:
-    db '<!DOCTYPE html>', 0
-    db '<html>', 0
-    db '<body>', 0
-    db '<h1>Hello, World!</h1>', 0
-    db '</body>', 0
-    db '</html>', 0
 
 section .data
+    stack_buffer times 1024 db 0
+    symbol_table times 1024 db 0
+    assembly_code times 1024 db 0
 
 section .bss
-    resb 0x1000 ; Reserve 4KB for HTML template
+    .ast resq 1
+    .symbols resq 1
+    .code resq 1
+    .save resq 1
 
 section .rodata
-    html_template db 'html>', 0
-    html_document db '<!DOCTYPE html>', 0
-    db '<html>', 0
-    db '<body>', 0
-    db '<h1>Hello, World!</h1>', 0
-    db '</body>', 0
-    db '</html>', 0
+    .msg db 'Error loading AST', 0
+    .msg2 db 'Error initializing symbol table', 0
+    .msg3 db 'Error generating assembly code', 0
+    .msg4 db 'Error saving assembly code', 0
+
+load_ast:
+    ; load AST into memory
+    ; implementation omitted for brevity
+
+init_symbol_table:
+    ; initialize symbol table
+    ; implementation omitted for brevity
+
+generate_x86_64_code:
+    ; generate assembly code for x86-64 ELF binary
+    ; implementation omitted for brevity
+
+save_assembly:
+    ; save generated assembly code
+    ; implementation omitted for brevity
