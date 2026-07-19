@@ -1,0 +1,1 @@
+fn main() -> 'abc' { return 0; }
