@@ -52,12 +52,12 @@ mkdir -p build
 # Build the compiler
 echo "Building compiler..."
 nasm -f elf64 src/asm/*.asm -o build/*.o
-$CC -no-pie -nostdlib -o kdx build/*.o -lc
+$CC -no-pie -nostdlib -o webx build/*.o -lc
 
 # Install
-echo "[OK] Installing kdx to ~/.local/bin/"
-cp kdx "$HOME/.local/bin/"
-chmod +x "$HOME/.local/bin/kdx"
+echo "[OK] Installing webx to ~/.local/bin/"
+cp webx "$HOME/.local/bin/"
+chmod +x "$HOME/.local/bin/webx"
 
 # Update PATH in bashrc
 BASHRC_LINE='export PATH="$HOME/.local/bin:$PATH"'
@@ -73,8 +73,8 @@ fi
 echo ""
 echo "=== Installation Complete ==="
 echo ""
-echo "To use kdx immediately, run:"
+echo "To use webx immediately, run:"
 echo "    export PATH=\"\$HOME/.local/bin:\$PATH\""
 echo ""
-echo "To use kdx in new terminals, restart bash or run:"
+echo "To use webx in new terminals, restart bash or run:"
 echo "    source ~/.bashrc"

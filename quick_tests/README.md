@@ -46,6 +46,6 @@ Optional experimental checks:
 Create a file in `quick_tests/cases/pass/` and run:
 
 ```bash
-./kdx quick_tests/cases/pass/your_case.webx -o /tmp/your_case_bin
+./webx quick_tests/cases/pass/your_case.webx -o /tmp/your_case_bin
 /tmp/your_case_bin
 ```

@@ -9,14 +9,14 @@ fi
 expect_compile_ok() {
   local src="$1"
   local out="$2"
-  ./kdx "$src" -o "$out" >/tmp/spec_test.stdout 2>/tmp/spec_test.stderr
+  ./webx "$src" -o "$out" >/tmp/spec_test.stdout 2>/tmp/spec_test.stderr
   test -f "$out"
 }
 
 expect_compile_fail() {
   local src="$1"
   set +e
-  ./kdx "$src" -o /tmp/spec_fail.bin >/tmp/spec_test.stdout 2>/tmp/spec_test.stderr
+  ./webx "$src" -o /tmp/spec_fail.bin >/tmp/spec_test.stdout 2>/tmp/spec_test.stderr
   local rc=$?
   set -e
   if [[ "$rc" -eq 0 ]]; then

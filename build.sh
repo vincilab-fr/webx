@@ -4,7 +4,7 @@ set -euo pipefail
 echo "Building KodPix compiler..."
 
 mkdir -p build
-rm -f build/*.o kdx
+rm -f build/*.o webx
 
 nasm -f elf64 src/main.asm -o build/main.o
 nasm -f elf64 src/lexer.asm -o build/lexer.o
@@ -15,7 +15,7 @@ nasm -f elf64 src/optimizer.asm -o build/optimizer.o
 nasm -f elf64 src/codegen.asm -o build/codegen.o
 nasm -f elf64 src/linker.asm -o build/linker.o
 
-ld -o kdx build/main.o build/lexer.o build/parser.o build/symbol.o build/sema.o build/optimizer.o build/codegen.o build/linker.o -lc --dynamic-linker /lib64/ld-linux-x86-64.so.2
+ld -o webx build/main.o build/lexer.o build/parser.o build/symbol.o build/sema.o build/optimizer.o build/codegen.o build/linker.o -lc --dynamic-linker /lib64/ld-linux-x86-64.so.2
 
-chmod +x kdx
-echo "Build successful! Compiler is ready at ./kdx"
+chmod +x webx
+echo "Build successful! Compiler is ready at ./webx"
