@@ -1,115 +1,69 @@
-; lib/webcore.asm
-; WebX standard web library
-; Functions for HTML generation, CSS handling, JS interop
-
 section .text
-    global _webx_html_write
-    global _webx_css_write
-    global _webx_js_write
+global printf
+printf:
+    ; printf function to output a formatted string
+    ; This is a simplified version for now
+    ; WebX will need a more robust version
+    ; that handles formatting and escapes
 
-_webx_html_write:
-    ; HTML output callback
-    ; Parameters: rdi - HTML buffer, rsi - HTML string
-    ; Returns: HTML buffer pointer
-    push rbp
-    mov rbp, rsp
-    sub rsp, 32
+    ; Load the format string
+    mov rsi, rdi
 
-    ; Allocate 128 bytes for the HTML buffer
-    mov rax, 128
-    mul rax
-    push rax
-    pop rdi
-    push rdi
-    pop rsi
-    mov rax, 10
-    syscall ; sys_brk
-    mov rsi, rax
-    mov rdi, rsi
-    mov rsi, -1
-    mov rdx, 0x20
-    syscall ; sys_mmap
+    ; Load the string to print
+    mov rdi, fmt_str
+    ; Load the format string address into rsi
+    mov rsi, rdi
 
-    ; Copy the HTML string to the buffer
-    mov rsi, rsi
-    mov rdi, rsi
-    mov rcx, -1
-    rep movsb
+    ; Call the libc printf function
+    mov rax, 0x2000004
+    syscall
 
-    ; Return the HTML buffer pointer
-    mov rax, rsi
-    leave
-    ret
-
-_webx_css_write:
-    ; CSS output callback
-    ; Parameters: rdi - CSS buffer, rsi - CSS string
-    ; Returns: CSS buffer pointer
-    push rbp
-    mov rbp, rsp
-    sub rsp, 32
-
-    ; Allocate 128 bytes for the CSS buffer
-    mov rax, 128
-    mul rax
-    push rax
-    pop rdi
-    push rdi
-    pop rsi
-    mov rax, 10
-    syscall ; sys_brk
-    mov rsi, rax
-    mov rdi, rsi
-    mov rsi, -1
-    mov rdx, 0x20
-    syscall ; sys_mmap
-
-    ; Copy the CSS string to the buffer
-    mov rsi, rsi
-    mov rdi, rsi
-    mov rcx, -1
-    rep movsb
-
-    ; Return the CSS buffer pointer
-    mov rax, rsi
-    leave
-    ret
-
-_webx_js_write:
-    ; JS output callback
-    ; Parameters: rdi - JS buffer, rsi - JS string
-    ; Returns: JS buffer pointer
-    push rbp
-    mov rbp, rsp
-    sub rsp, 32
-
-    ; Allocate 128 bytes for the JS buffer
-    mov rax, 128
-    mul rax
-    push rax
-    pop rdi
-    push rdi
-    pop rsi
-    mov rax, 10
-    syscall ; sys_brk
-    mov rsi, rax
-    mov rdi, rsi
-    mov rsi, -1
-    mov rdx, 0x20
-    syscall ; sys_mmap
-
-    ; Copy the JS string to the buffer
-    mov rsi, rsi
-    mov rdi, rsi
-    mov rcx, -1
-    rep movsb
-
-    ; Return the JS buffer pointer
-    mov rax, rsi
-    leave
+    ; Return success
     ret
 
 section .data
-    .text_end:
-    .data_end:
-; end of file
+fmt_str db "Hello, World!", 0
+
+; WebX standard library functions
+
+; HTML generation
+
+global html_tag
+html_tag:
+    ; Tag is a string
+    ; We will add more HTML functions later
+    ; For now, we just return the tag
+    ; and the user needs to add the rest
+    mov rdi, rsi
+    ret
+
+; CSS handling
+
+global css_rule
+css_rule:
+    ; CSS rule is a string
+    ; We will add more CSS functions later
+    ; For now, we just return the rule
+    ; and the user needs to add the rest
+    mov rdi, rsi
+    ret
+
+; JavaScript interop
+
+global js_import
+js_import:
+    ; Import a JavaScript module
+    ; We will add more JavaScript functions later
+    ; For now, we just return the module
+    ; and the user needs to add the rest
+    mov rdi, rsi
+    ret
+
+global js_eval
+js_eval:
+    ; Evaluate a JavaScript expression
+    ; We will add more JavaScript functions later
+    ; For now, we just return the result
+    ; and the user needs to add the rest
+    mov rdi, rsi
+    ret
