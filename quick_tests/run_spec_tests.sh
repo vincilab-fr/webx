@@ -41,7 +41,6 @@ expect_program_exit() {
 
 rm -f /tmp/spec_test.stdout /tmp/spec_test.stderr /tmp/spec_fail.s /tmp/spec_*.bin
 
-fi
 
 echo "[spec] building compiler"
 ./build.sh >/dev/null
