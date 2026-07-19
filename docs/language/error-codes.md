@@ -31,7 +31,7 @@ KodPix uses deterministic exit codes for automation and CI.
 1. Re-run in assembly mode:
 
 ```bash
-./kdx your_file.kdx -S -o /tmp/debug.s
+./kdx your_file.webx -S -o /tmp/debug.s
 ```
 
 2. Run core suite:
