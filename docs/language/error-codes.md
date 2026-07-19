@@ -1,6 +1,6 @@
 # Error Codes
 
-KodPix uses deterministic exit codes for automation and CI.
+WebX uses deterministic exit codes for automation and CI.
 
 | Code | Meaning |
 |---|---|

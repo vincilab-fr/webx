@@ -1,6 +1,6 @@
 # Language Reference
 
-This document defines the currently supported KodPix syntax.
+This document defines the currently supported WebX syntax.
 
 ## Program Structure
 
@@ -11,13 +11,13 @@ This document defines the currently supported KodPix syntax.
 
 Supported forms:
 
-```kodpix
+```webx
 function int add(int a, int b) {
     return a + b;
 }
 ```
 
-```kodpix
+```webx
 function main(a: int, b: int) -> int {
     return a + b;
 }
@@ -50,13 +50,13 @@ function main(a: int, b: int) -> int {
 
 Supported entry forms:
 
-```kodpix
+```webx
 function int main() {
     return 0;
 }
 ```
 
-```kodpix
+```webx
 class Main {
     public void main() {
         return;

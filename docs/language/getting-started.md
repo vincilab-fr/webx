@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide gets you from source code to a running KodPix program.
+This guide gets you from source code to a running WebX program.
 
 ## Requirements
 
@@ -39,9 +39,9 @@ The compiler binary is created as `./webx`.
 
 ## First Program
 
-```kodpix
+```webx
 function int main() {
-    println("Hello, KodPix");
+    println("Hello, WebX");
     return 0;
 }
 ```

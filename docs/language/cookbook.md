@@ -1,10 +1,10 @@
 # Cookbook
 
-Practical patterns for common KodPix tasks.
+Practical patterns for common WebX tasks.
 
 ## Add Two Numbers
 
-```kodpix
+```webx
 function int add(int a, int b) {
     return a + b;
 }
@@ -12,7 +12,7 @@ function int add(int a, int b) {
 
 ## Increment Counter
 
-```kodpix
+```webx
 function int main() {
     int i = 1;
     i++;
@@ -23,7 +23,7 @@ function int main() {
 
 ## Conditional Return
 
-```kodpix
+```webx
 function int main() {
     int x = 0;
     if (x == 0) {
@@ -35,7 +35,7 @@ function int main() {
 
 ## While Loop
 
-```kodpix
+```webx
 function int main() {
     int x = 0;
     while (x < 3) {
@@ -47,7 +47,7 @@ function int main() {
 
 ## Class Main Entrypoint
 
-```kodpix
+```webx
 class Main {
     public void main() {
         println("hello");
