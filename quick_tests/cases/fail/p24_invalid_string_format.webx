@@ -1,0 +1,5 @@
+fn main() -> i32 {
+    let name: &str = "John";
+    println("Hello, {}", name, 30);
+    return 0;
+}

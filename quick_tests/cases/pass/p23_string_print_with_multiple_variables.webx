@@ -1,0 +1,6 @@
+fn main() -> i32 {
+    let name: &str = "John";
+    let age: i32 = 30;
+    println("Hello, {}! You are {} years old.", name, age);
+    return 0;
+}
