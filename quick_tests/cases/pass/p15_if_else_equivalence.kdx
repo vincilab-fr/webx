@@ -1,0 +1,10 @@
+fn main() -> i32 {
+    let x: i32 = 5;
+    if x > 0 {
+        println("x is positive");
+    }
+    if x <= 0 {
+        println("x is not positive");
+    }
+    return 0;
+}

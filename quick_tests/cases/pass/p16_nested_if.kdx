@@ -1,0 +1,13 @@
+fn main() -> i32 {
+    let x: i32 = 5;
+    if x > 0 {
+        if x < 10 {
+            println("x is between 0 and 10");
+        } else {
+            println("x is greater than 10");
+        }
+    } else {
+        println("x is not positive");
+    }
+    return 0;
+}
