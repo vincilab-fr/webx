@@ -44,9 +44,9 @@ jobs:
       - name: Prepare artifacts
         run: |
           mkdir -p out
-          cp kdx out/kdx
+          cp webx out/webx
           tar -czf out/examples.tar.gz examples
-          sha256sum out/kdx out/examples.tar.gz > out/SHA256SUMS
+          sha256sum out/webx out/examples.tar.gz > out/SHA256SUMS
           cp README.md out/README.md
           if [ -d docs/language ]; then tar -czf out/language-docs.tar.gz docs/language; fi
 

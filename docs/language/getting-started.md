@@ -14,12 +14,12 @@ This guide gets you from source code to a running KodPix program.
 ./build.sh
 ```
 
-The compiler binary is created as `./kdx`.
+The compiler binary is created as `./webx`.
 
 ## Compile and Run a Program
 
 ```bash
-./kdx examples/hello.webx -o hello
+./webx examples/hello.webx -o hello
 ./hello
 ```
 
@@ -28,13 +28,13 @@ The compiler binary is created as `./kdx`.
 - Assembly only:
 
 ```bash
-./kdx examples/hello.webx -S -o hello.s
+./webx examples/hello.webx -S -o hello.s
 ```
 
 - Object only:
 
 ```bash
-./kdx examples/hello.webx -c -o hello.o
+./webx examples/hello.webx -c -o hello.o
 ```
 
 ## First Program

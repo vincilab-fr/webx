@@ -9,7 +9,7 @@ fi
 expect_compile_ok() {
   local src="$1"
   local out="$2"
-  ./kdx "$src" -o "$out" >/tmp/quick_test.stderr 2>&1
+  ./webx "$src" -o "$out" >/tmp/quick_test.stderr 2>&1
   test -f "$out"
 }
 
@@ -31,7 +31,7 @@ expect_compile_fail() {
   local expected="$1"
   local src="$2"
   set +e
-  ./kdx "$src" -S -o /tmp/quick_fail.s >/tmp/quick_test.stdout 2>/tmp/quick_test.stderr
+  ./webx "$src" -S -o /tmp/quick_fail.s >/tmp/quick_test.stdout 2>/tmp/quick_test.stderr
   local rc=$?
   set -e
   if [[ "$rc" -ne "$expected" ]]; then
