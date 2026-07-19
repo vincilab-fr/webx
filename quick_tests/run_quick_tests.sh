@@ -43,7 +43,6 @@ expect_compile_fail() {
 
 rm -f /tmp/quick_test.stdout /tmp/quick_test.stderr /tmp/quick_fail.s /tmp/quick_*.bin
 
-fi
 
 echo "[quick] building compiler"
 ./build.sh >/dev/null
