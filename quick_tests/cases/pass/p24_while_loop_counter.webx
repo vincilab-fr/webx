@@ -1,0 +1,8 @@
+fn main() -> i32 {
+    let mut i: i32 = 0;
+    while i < 5 {
+        println!("Counter: {}", i);
+        i = i + 1;
+    }
+    return 0;
+}
