@@ -1,62 +1,66 @@
 section .text
-global html_init
-global css_init
-global js_init
-global html_close
+global _start
 
-html_init:
-    ; Initialize HTML generator
-    ; Create HTML header with doctype, title, and charset
-    mov rax, 1            ; sys_write
-    mov rdi, 1            ; stdout
-    mov rsi, html_header  ; string to write
-    mov rdx, html_header_len
+_start:
+    ; Load HTML template into memory
+    mov rsi, html_template
+    mov rdi, 0x1000
+    mov eax, 0x1 ; sys_read
     syscall
 
-    ; Initialize CSS generator (empty for now)
-    ; Create <style> tag
-    mov rax, 1            ; sys_write
-    mov rdi, 1            ; stdout
-    mov rsi, css_header   ; string to write
-    mov rdx, css_header_len
-    syscall
-    ret
+html_template:
+    db 'html>', 0
 
-css_init:
-    ; Initialize CSS generator
-    ; Create empty <style> tag
-    ; (no-op for now, just a placeholder)
-    ret
+; Generate HTML tag
+generate_tag:
+    ; Load tag name into eax
+    mov eax, 0x68 ; 'h'
+    mov [r12], eax ; Store tag name in r12
+    ; Load closing tag name into eax
+    mov eax, 0x68 ; 'h'
+    mov [r13], eax ; Store closing tag name in r13
 
-js_init:
-    ; Initialize JavaScript generator
-    ; Create <script> tag
-    mov rax, 1            ; sys_write
-    mov rdi, 1            ; stdout
-    mov rsi, js_header    ; string to write
-    mov rdx, js_header_len
-    syscall
-    ret
+generate_tag_loop:
+    ; Generate opening tag
+    mov eax, [r12]
+    mov [r12], eax ; Shift tag name to the left
+    sub eax, 0x68 ; Remove last character
+    mov byte [r12], al
+    ; Generate closing tag
+    mov eax, [r13]
+    mov [r13], eax ; Shift closing tag name to the left
+    sub eax, 0x68 ; Remove last character
+    mov byte [r13], al
+    ; Check if tag name is empty
+    cmp byte [r12], 0
+    jz generate_tag_end
+    jmp generate_tag_loop
 
-html_close:
-    ; Close HTML document
-    ; Create </html> tag
-    mov rax, 1            ; sys_write
-    mov rdi, 1            ; stdout
-    mov rsi, html_footer  ; string to write
-    mov rdx, html_footer_len
+generate_tag_end:
+    ; Generate HTML document
+    mov rsi, html_document
+    mov rdi, 0x1000
+    mov eax, 0x1 ; sys_write
     syscall
-    ret
+
+html_document:
+    db '<!DOCTYPE html>', 0
+    db '<html>', 0
+    db '<body>', 0
+    db '<h1>Hello, World!</h1>', 0
+    db '</body>', 0
+    db '</html>', 0
 
 section .data
-html_header db '<!DOCTYPE html><html><head><title>WebX</title><meta charset="utf-8">', 0
-html_header_len equ $ - html_header
 
-css_header db '<style>', 0
-css_header_len equ $ - css_header
+section .bss
+    resb 0x1000 ; Reserve 4KB for HTML template
 
-js_header db '<script>', 0
-js_header_len equ $ - js_header
-
-html_footer db '</html>', 0
-html_footer_len equ $ - html_footer
+section .rodata
+    html_template db 'html>', 0
+    html_document db '<!DOCTYPE html>', 0
+    db '<html>', 0
+    db '<body>', 0
+    db '<h1>Hello, World!</h1>', 0
+    db '</body>', 0
+    db '</html>', 0
