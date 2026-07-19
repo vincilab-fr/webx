@@ -94,7 +94,3 @@ yarn-error.log*
 .idea/
 
 # Internal process assets (private)
-.autodev/
-AGENT_TEAMS.md
-SCRUM_AGENTS.md
-week_sprint.log
