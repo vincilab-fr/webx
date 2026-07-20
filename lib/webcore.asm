@@ -1,31 +1,55 @@
-; File: lib/webcore.asm
-; Purpose: WebX standard web library - functions for HTML generation, CSS handling, JS interop
+; lib/webcore.asm
+BITS 64
 
-section .text
-
-global generate_html
-generate_html:
-    ; HTML generation function
-    ; For now, just return a basic HTML template
-    mov rax, 1 ; HTML template length
-    mov rcx, 1 ; HTML template offset
-    ret
-
-global handle_css
-handle_css:
-    ; CSS handling function
-    ; For now, just return an empty CSS string
-    mov rax, 0 ; CSS string length
-    mov rcx, 0 ; CSS string offset
-    ret
-
-global js_interop_call
-js_interop_call:
-    ; JS interop function
-    ; For now, just push a dummy value onto the stack
-    push 0
-    ret
-
+; Data section
 section .data
-    html_template db "html template", 0
-    css_string db "css string", 0
+    ; Global variables go here
+    lexeme db 'lexeme', 0
+    token db 'token', 0
+
+; Text section
+section .text
+    global _start
+
+_start:
+    ; Initialize data
+    mov rax, lexeme
+    mov [rax], 'l'
+    mov [rax + 1], 'e'
+    mov [rax + 2], 'x'
+    mov [rax + 3], 'e'
+    mov [rax + 4], 'm'
+    mov [rax + 5], 'e', 0
+
+    ; Lexical analysis
+    ; (Assuming lexer has been implemented in src/lexer.asm)
+    call lexer
+
+    ; Generate token
+    ; (Assuming token generation has been implemented in lexer)
+    mov rax, token
+    mov [rax], 't'
+    mov [rax + 1], 'o'
+    mov [rax + 2], 'k'
+    mov [rax + 3], 'e'
+    mov [rax + 4], 'n', 0
+
+    ; Print token
+    mov rdi, token
+    xor rax, rax
+    mov rsi, 1
+    mov rdx, 6
+    call printf
+
+    ; Exit program
+    xor rax, rax
+    xor rdi, rdi
+    syscall
+
+; External functions
+extern printf
+
+; Lexer function (assuming it's been implemented in src/lexer.asm)
+lexer:
+    ; TO DO: Implement lexer logic here
+    ret
