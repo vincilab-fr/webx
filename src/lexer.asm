@@ -1,139 +1,138 @@
-; lexer.asm
+; src/lexer.asm
 
 section .text
-global lexer
-lexer:
-    ; Input: RDI = input string
-    ; Output: RAX = token type, RDX = token value
+global _start
 
-    ; Check if input is empty
-    cmp byte [rdi], 0
-    je done
+_start:
+    ; Lexer entry point
 
-    ; Check if input starts with a keyword
-    cmp byte [rdi], 'f'
-    je fn_keyword
-    cmp byte [rdi], 'l'
-    je let_keyword
-    cmp byte [rdi], 'p'
-    je println_keyword
-    cmp byte [rdi], 'i'
-    je if_keyword
-    cmp byte [rdi], 'w'
-    je while_keyword
-    cmp byte [rdi], 'r'
-    je return_keyword
-    jmp other_token
+; Lexer function to scan for a token
+scan_token:
+    ; Clear the buffer to avoid leftover characters
+    mov rsi, token_buffer
+    mov rdi, 64 ; Buffer size
+    sub rsi, rdi ; Point to the start of the buffer
+    xor rax, rax ; Clear the register
+    rep stosb ; Zero the buffer
+    mov rsi, token_buffer ; Move the buffer pointer
 
-fn_keyword:
-    ; Check if input is "fn"
-    mov rax, 1 ; token type: function
-    mov rdx, 0 ; token value: none
-    mov rsi, rdi
-    call str_len
-    mov rdx, rax ; get length
-    cmp rdx, 2
-    jne other_token
-    mov rax, 1 ; token type: function
-    mov rdx, 0 ; token value: none
-    jmp done
+    ; Check for a keyword
+    call check_keyword
+    jz FOUND_KEYWORD
+    mov rsi, token_buffer ; Reset the buffer pointer
 
-let_keyword:
-    ; Check if input is "let"
-    mov rax, 2 ; token type: let
-    mov rdx, 0 ; token value: none
-    mov rsi, rdi
-    call str_len
-    mov rdx, rax ; get length
-    cmp rdx, 3
-    jne other_token
-    mov rax, 2 ; token type: let
-    mov rdx, 0 ; token value: none
-    jmp done
+    ; Check for an identifier
+    call check_identifier
+    jz FOUND_IDENTIFIER
+    mov rsi, token_buffer ; Reset the buffer pointer
 
-println_keyword:
-    ; Check if input is "println"
-    mov rax, 3 ; token type: println
-    mov rdx, 0 ; token value: none
-    mov rsi, rdi
-    call str_len
-    mov rdx, rax ; get length
-    cmp rdx, 7
-    jne other_token
-    mov rax, 3 ; token type: println
-    mov rdx, 0 ; token value: none
-    jmp done
+    ; Check for a number
+    call check_number
+    jz FOUND_NUMBER
+    mov rsi, token_buffer ; Reset the buffer pointer
 
-if_keyword:
-    ; Check if input is "if"
-    mov rax, 4 ; token type: if
-    mov rdx, 0 ; token value: none
-    mov rsi, rdi
-    call str_len
-    mov rdx, rax ; get length
-    cmp rdx, 2
-    jne other_token
-    mov rax, 4 ; token value: none
-    jmp done
+    ; Check for a string
+    call check_string
+    jz FOUND_STRING
+    mov rsi, token_buffer ; Reset the buffer pointer
 
-while_keyword:
-    ; Check if input is "while"
-    mov rax, 5 ; token type: while
-    mov rdx, 0 ; token value: none
-    mov rsi, rdi
-    call str_len
-    mov rdx, rax ; get length
-    cmp rdx, 5
-    jne other_token
-    mov rax, 5 ; token value: none
-    jmp done
+    ; If none of the above, assume it's a symbol
+    mov rsi, token_buffer
+    mov rdi, 1 ; Symbol type
+    mov [rsi + 4], rdi ; Store the symbol type
+    xor rax, rax ; Clear the register
+    rep stosb ; Zero the rest of the buffer
+    jmp FOUND_SYMBOL
 
-return_keyword:
-    ; Check if input is "return"
-    mov rax, 6 ; token type: return
-    mov rdx, 0 ; token value: none
-    mov rsi, rdi
-    call str_len
-    mov rdx, rax ; get length
-    cmp rdx, 6
-    jne other_token
-    mov rax, 6 ; token value: none
-    jmp done
+FOUND_KEYWORD:
+    mov rsi, token_buffer
+    mov rdi, 2 ; Keyword type
+    mov [rsi + 4], rdi ; Store the keyword type
+    xor rax, rax ; Clear the register
+    rep stosb ; Zero the rest of the buffer
+    jmp FOUND_TOKEN
 
-other_token:
-    ; Check if input is a number
-    mov rax, 0 ; token type: number
-    mov rdx, 0 ; token value: none
-    cmp byte [rdi], '0'
-    jl invalid_token
-    cmp byte [rdi], '9'
-    jg invalid_token
-    ; Check if input is a string
-    mov rax, 7 ; token type: string
-    mov rdx, 0 ; token value: none
-    mov rsi, rdi
-    call str_len
-    mov rdx, rax ; get length
-    jmp done
+FOUND_IDENTIFIER:
+    mov rsi, token_buffer
+    mov rdi, 3 ; Identifier type
+    mov [rsi + 4], rdi ; Store the identifier type
+    xor rax, rax ; Clear the register
+    rep stosb ; Zero the rest of the buffer
+    jmp FOUND_TOKEN
 
-invalid_token:
-    ; Unknown token, print error message
-    mov rax, 8 ; token type: error
-    mov rdx, 0 ; token value: none
-    jmp done
+FOUND_NUMBER:
+    mov rsi, token_buffer
+    mov rdi, 4 ; Number type
+    mov [rsi + 4], rdi ; Store the number type
+    xor rax, rax ; Clear the register
+    rep stosb ; Zero the rest of the buffer
+    jmp FOUND_TOKEN
 
-done:
-    ; Return token type and value
+FOUND_STRING:
+    mov rsi, token_buffer
+    mov rdi, 5 ; String type
+    mov [rsi + 4], rdi ; Store the string type
+    xor rax, rax ; Clear the register
+    rep stosb ; Zero the rest of the buffer
+    jmp FOUND_TOKEN
+
+FOUND_SYMBOL:
+    mov rsi, token_buffer
+    mov rdi, 1 ; Symbol type
+    mov [rsi + 4], rdi ; Store the symbol type
+    xor rax, rax ; Clear the register
+    rep stosb ; Zero the rest of the buffer
+
+FOUND_TOKEN:
+    ; Return the token
     ret
 
-str_len:
-    ; Return length of input string
-    xor rax, rax
-    mov r8, 0
-    .loop:
-        cmp byte [rdi + r8], 0
-        je .done
-        inc r8
-        jmp .loop
-    .done:
-        ret
+; Token buffer
+token_buffer times 64 db 0
+
+section .data
+    ; Keyword tokens
+    ; ... (add keywords here)
+
+    ; Identifier tokens
+    ; ... (add identifiers here)
+
+    ; Number tokens
+    ; ... (add numbers here)
+
+    ; String tokens
+    ; ... (add strings here)
+
+section .bss
+    ; Buffer for the current token
+    token_buffer times 64 resb 1
+
+; Functions for checking tokens
+%macro CHECK_TOKEN 1
+%assign macro_number %1
+    section .text
+    global check_macro_%%macro_number
+check_macro_%%macro_number:
+    ; Check if the token matches the macro
+    ; ... (add implementation here)
+    jmp check_token_default
+%endmacro
+
+; ... (add CHECK_TOKEN macros here)
+
+section .text
+check_token_default:
+    ; Default token check (e.g., just return an error)
+    ; ... (add implementation here)
+    ret
+
+section .data
+    ; Token types
+    TYP_KEYWORD equ 2
+    TYP_IDENTIFIER equ 3
+    TYP_NUMBER equ 4
+    TYP_STRING equ 5
+    TYP_SYMBOL equ 1
+    TYP_UNKNOWN equ 0
+
+; ... (add token types here)
