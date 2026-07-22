@@ -1,63 +1,70 @@
-#!/bin/bash -euo pipefail
+#!/bin/bash
 
-# test_features.sh
+# Set up strict error handling
+set -euo pipefail
 
-# Set up test directory
-TEST_DIR=$(mktemp -d)
+# Clean up previous test results
+rm -rf test_results
 
-# Create test files
-cat > ${TEST_DIR}/test_functions.webx <<EOF
-fn add(a: i32, b: i32) -> i32 {
-  return a + b;
-}
+# Test if/else statements
+cd test_cases/if_chain
+echo "Testing if/else statements..."
+./test.sh
+if [ $? -ne 0 ]; then
+  echo "Error: if/else statement test failed"
+  exit 1
+fi
+echo "if/else statement test passed"
 
-fn main() -> i32 {
-  println("Hello, World!");
-  let result = add(2, 3);
-  println(result);
-  return result;
-}
-EOF
+# Test while loop
+cd test_cases/while_loop
+echo "Testing while loop..."
+./test.sh
+if [ $? -ne 0 ]; then
+  echo "Error: while loop test failed"
+  exit 1
+fi
+echo "while loop test passed"
 
-cat > ${TEST_DIR}/test_let.webx <<EOF
-fn main() -> i32 {
-  let x = 5;
-  let y = 10;
-  println(x);
-  println(y);
-  return x + y;
-}
-EOF
+# Test functions
+cd test_cases/functions
+echo "Testing functions..."
+./test.sh
+if [ $? -ne 0 ]; then
+  echo "Error: function test failed"
+  exit 1
+fi
+echo "function test passed"
 
-cat > ${TEST_DIR}/test_if.webx <<EOF
-fn main() -> i32 {
-  if true {
-    println("It's true!");
-  } else {
-    println("It's false!");
-  }
-  return 0;
-}
-EOF
+# Test let statements
+cd test_cases/let_statements
+echo "Testing let statements..."
+./test.sh
+if [ $? -ne 0 ]; then
+  echo "Error: let statement test failed"
+  exit 1
+fi
+echo "let statement test passed"
 
-cat > ${TEST_DIR}/test_while.webx <<EOF
-fn main() -> i32 {
-  let x = 0;
-  while x < 5 {
-    println(x);
-    x = x + 1;
-  }
-  return 0;
-}
-EOF
+# Test return statements
+cd test_cases/return_statements
+echo "Testing return statements..."
+./test.sh
+if [ $? -ne 0 ]; then
+  echo "Error: return statement test failed"
+  exit 1
+fi
+echo "return statement test passed"
 
-# Build WebX
-./build.sh ${TEST_DIR}/test_functions.webx ${TEST_DIR}/test_let.webx ${TEST_DIR}/test_if.webx ${TEST_DIR}/test_while.webx
+# Test multiple features together
+cd test_cases/multiple_features
+echo "Testing multiple features together..."
+./test.sh
+if [ $? -ne 0 ]; then
+  echo "Error: multiple feature test failed"
+  exit 1
+fi
+echo "multiple feature test passed"
 
-# Run tests
-./test.sh ${TEST_DIR}
-
-# Clean up
-rm -rf ${TEST_DIR}
-
-echo "Feature tests passed!"
+# Report test results
+echo "All test cases passed"
