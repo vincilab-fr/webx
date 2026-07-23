@@ -1,69 +1,93 @@
+; lib/webcore.asm - WebX standard web library
+;
+; Copyright (c) 2026, Samy Alderson
+; Forked from KDX by Yug Merabtene (https://github.com/yugmerabtene/KDX)
+
 section .text
-global _start
+align 16
 
-_start:
-    ; Initialize the data segment
-    mov rsi, offset .data
+; WebX standard library functions
+;
+; println
+;
+; Prints the string pointed to by the rsi register, followed by a newline.
+; The rsi register must be loaded with the address of the string before calling.
+; 
+; Parameters:
+;   rsi - address of the string to print
+; 
+; Returns:
+;   None
+;
+println:
+    ; Load the address of the string to print into rsi
+    mov rsi, rsi
+    
+    ; Call the C printf function with the string as an argument
+    ; We don't actually call a C function here, but this is what we want to do
+    ; in Phase 2 (frontend generation).
+    ; For now, we just print the string directly.
     mov rdi, rsi
-    call init_data
-
-init_data:
-    ; Initialize the heap
-    mov rsi, offset .heap
-    mov rdi, rsi
-    call init_heap
-
-init_heap:
-    ; Initialize the stack
-    mov rsi, offset .stack
-    mov rdi, rsi
-    call init_stack
-
-init_stack:
-    ; Initialize the program counter
-    mov rsi, offset main
-    mov rdi, rsi
-    call init_pc
-
-init_pc:
-    ; Call the main function
-    call main
-
-main:
-    ; Print a message to the console
-    mov rsi, offset msg
-    mov rdi, rsi
-    call print_string
-
-print_string:
-    ; Write a string to stdout
-    mov rsi, rdi
-    mov rdi, 1
-    mov rdx, 10
-    mov rax, 1
-    syscall
+    call printf
+    
+    ; Print a newline
+    mov rdi, newline
+    call printf
+    
+    ; Return
     ret
 
-msg:
-    db 'Hello, World!', 0xA, 0
+; newline
+;
+; Prints a newline character.
+; 
+; Parameters:
+;   None
+; 
+; Returns:
+;   None
+;
+newline:
+    ; Load the address of the newline string into rsi
+    mov rsi, newline_str
+    
+    ; Call the C printf function with the string as an argument
+    ; We don't actually call a C function here, but this is what we want to do
+    ; in Phase 2 (frontend generation).
+    ; For now, we just print the string directly.
+    mov rdi, rsi
+    call printf
+    
+    ; Return
+    ret
+
+newline_str:
+    db ' ', 10, 0
+
+; exit
+;
+; Exits the program with the given status code.
+; 
+; Parameters:
+;   rdi - status code to return
+; 
+; Returns:
+;   None
+;
+exit:
+    ; Call the C exit function with the status code
+    ; We don't actually call a C function here, but this is what we want to do
+    ; in Phase 2 (frontend generation).
+    ; For now, we just return the status code directly.
+    mov rdi, rdi
+    call exit
+    
+    ; This line should never be reached
+    hlt
 
 section .data
-    align 16
-    resb 16
+align 16
 
-section .heap
-    align 16
-    resb 16
-
-section .stack
-    align 16
-    resb 16
-
-    global _end
-
-_end:
-    ; Exit the program
-    mov rsi, 60
-    mov rdi, 0
-    mov rax, 1
-    syscall
+newline db '`, 10, 0
+printf db 'printf', 0
+exit db 'exit', 0
