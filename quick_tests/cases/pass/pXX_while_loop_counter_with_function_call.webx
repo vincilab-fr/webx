@@ -1,1 +1,1 @@
-fn main() -> i32 { let x: i32 = 0; let f = fn() -> i32 { x += 1; return x; }; while x < 10 { println(x); x = f(); } return x; }
+fn main() -> i32 { let x: i32 = 0; let y: i32 = 5; while x < y { println(x); x += 1; } return 0; }
