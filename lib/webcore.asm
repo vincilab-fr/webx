@@ -1,55 +1,161 @@
-; lib/webcore.asm
-BITS 64
-
-; Data section
-section .data
-    ; Global variables go here
-    lexeme db 'lexeme', 0
-    token db 'token', 0
-
-; Text section
 section .text
-    global _start
+align 16
+global _start
 
-_start:
-    ; Initialize data
-    mov rax, lexeme
-    mov [rax], 'l'
-    mov [rax + 1], 'e'
-    mov [rax + 2], 'x'
-    mov [rax + 3], 'e'
-    mov [rax + 4], 'm'
-    mov [rax + 5], 'e', 0
+section .data
+align 16
+stdout db 'stdout', 0
+stderr db 'stderr', 0
+buf db 'Error: ', 0
+errcode dd 1
 
-    ; Lexical analysis
-    ; (Assuming lexer has been implemented in src/lexer.asm)
-    call lexer
-
-    ; Generate token
-    ; (Assuming token generation has been implemented in lexer)
-    mov rax, token
-    mov [rax], 't'
-    mov [rax + 1], 'o'
-    mov [rax + 2], 'k'
-    mov [rax + 3], 'e'
-    mov [rax + 4], 'n', 0
-
-    ; Print token
-    mov rdi, token
-    xor rax, rax
-    mov rsi, 1
+print_string:
+    ; sys_write(1, buf, len(buf))
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, buf
     mov rdx, 6
-    call printf
+    syscall
 
-    ; Exit program
-    xor rax, rax
+    ret
+
+print_error:
+    ; sys_write(2, buf, len(buf))
+    mov rax, 1
+    mov rdi, 2
+    mov rsi, buf
+    mov rdx, 6
+    syscall
+
+    ret
+
+start:
+    ; sys_write(1, stdout, len(stdout))
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, stdout
+    mov rdx, 6
+    syscall
+
+    ; sys_write(1, buf, len(buf))
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, buf
+    mov rdx, 6
+    syscall
+
+    ; sys_exit(0)
+    mov rax, 60
     xor rdi, rdi
     syscall
 
-; External functions
-extern printf
+section .data
+align 16
+stdout db 'stdout', 0
+stderr db 'stderr', 0
+buf db 'Hello, World!', 0
+errcode dd 0
 
-; Lexer function (assuming it's been implemented in src/lexer.asm)
-lexer:
-    ; TO DO: Implement lexer logic here
+print_string:
+    ; sys_write(1, buf, len(buf))
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, buf
+    mov rdx, 13
+    syscall
+
     ret
+
+print_error:
+    ; sys_write(2, buf, len(buf))
+    mov rax, 1
+    mov rdi, 2
+    mov rsi, buf
+    mov rdx, 13
+    syscall
+
+    ret
+
+start:
+    ; sys_write(1, stdout, len(stdout))
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, stdout
+    mov rdx, 6
+    syscall
+
+    ; sys_write(1, buf, len(buf))
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, buf
+    mov rdx, 13
+    syscall
+
+    ; sys_exit(0)
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+extern exit
+extern puts
+
+section .data
+align 16
+str db 'Hello, World!', 0
+
+extern _start
+
+_start:
+    ; call puts
+    call puts
+    ; call exit
+    call exit
+    ; xor rdi, rdi
+    ; call exit
+    ; xor rdi, rdi
+    ; call exit
+
+extern printf
+extern exit
+
+section .data
+align 16
+format db 'Hello, World!', 10, 0
+
+extern _start
+
+_start:
+    ; call printf
+    call printf
+    ; xor rdi, rdi
+    ; call exit
+
+extern printf
+extern exit
+
+section .data
+align 16
+format db 'Hello, World!', 10, 0
+
+extern _start
+
+_start:
+    ; call printf
+    call printf
+    ; xor rdi, rdi
+    ; call exit
+
+extern printf
+extern exit
+
+section .data
+align 16
+format db 'Hello, World!', 10, 0
+
+extern _start
+
+_start:
+    ; call printf
+    call printf
+    ; xor rdi, rdi
+    ; call exit
