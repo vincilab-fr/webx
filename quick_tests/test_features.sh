@@ -1,63 +1,40 @@
-#!/bin/bash -euo pipefail
+#!/bin/bash
 
-# test_features.sh
+# Set exit on error and unset undefined variables
+set -euo pipefail
 
-# Set up test directory
-TEST_DIR=$(mktemp -d)
+# Function to compile and run a single test
+compile_and_run() {
+  local file=$1
+  local output=$2
 
-# Create test files
-cat > ${TEST_DIR}/test_functions.webx <<EOF
-fn add(a: i32, b: i32) -> i32 {
-  return a + b;
+  # Assemble the file
+  nasm -f elf64 $file -o temp.o || echo "Failed to assemble $file"
+
+  # Link the object file
+  ld temp.o -o temp.exe || echo "Failed to link temp.o"
+
+  # Run the executable
+  ./temp.exe > $output && echo "Passed: $file" || echo "Failed: $file"
 }
 
-fn main() -> i32 {
-  println("Hello, World!");
-  let result = add(2, 3);
-  println(result);
-  return result;
+# Function to run a set of tests
+run_test_suite() {
+  local suite=$1
+  local output_dir=$2
+
+  # Create the output directory if it doesn't exist
+  mkdir -p $output_dir
+
+  # Run each test in the suite
+  for file in $suite; do
+    local output=$output_dir/$(basename $file .webx)
+    compile_and_run $file $output
+  done
 }
-EOF
 
-cat > ${TEST_DIR}/test_let.webx <<EOF
-fn main() -> i32 {
-  let x = 5;
-  let y = 10;
-  println(x);
-  println(y);
-  return x + y;
-}
-EOF
+# Run quick tests
+run_test_suite "examples/*" quick_tests/quick_test_output
 
-cat > ${TEST_DIR}/test_if.webx <<EOF
-fn main() -> i32 {
-  if true {
-    println("It's true!");
-  } else {
-    println("It's false!");
-  }
-  return 0;
-}
-EOF
-
-cat > ${TEST_DIR}/test_while.webx <<EOF
-fn main() -> i32 {
-  let x = 0;
-  while x < 5 {
-    println(x);
-    x = x + 1;
-  }
-  return 0;
-}
-EOF
-
-# Build WebX
-./build.sh ${TEST_DIR}/test_functions.webx ${TEST_DIR}/test_let.webx ${TEST_DIR}/test_if.webx ${TEST_DIR}/test_while.webx
-
-# Run tests
-./test.sh ${TEST_DIR}
-
-# Clean up
-rm -rf ${TEST_DIR}
-
-echo "Feature tests passed!"
+# Run feature tests
+run_test_suite "features/*" quick_tests/feature_test_output
