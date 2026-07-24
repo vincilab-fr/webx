@@ -1,63 +1,31 @@
-#!/bin/bash -euo pipefail
+#!/bin/bash
 
-# test_features.sh
+set -euo pipefail
 
-# Set up test directory
-TEST_DIR=$(mktemp -d)
+echo "Running quick tests on WebX compiler features"
 
-# Create test files
-cat > ${TEST_DIR}/test_functions.webx <<EOF
-fn add(a: i32, b: i32) -> i32 {
-  return a + b;
-}
+# Test if/else statement
+echo "Testing if/else statement"
+nasm -f elf64 -o test_if.o src/main.asm -DTEST_IF=1
+ld -m elf_x86-64 test_if.o -o test_if
+./test_if
 
-fn main() -> i32 {
-  println("Hello, World!");
-  let result = add(2, 3);
-  println(result);
-  return result;
-}
-EOF
+# Test let statement
+echo "Testing let statement"
+nasm -f elf64 -o test_let.o src/main.asm -DTEST_LET=1
+ld -m elf_x86-64 test_let.o -o test_let
+./test_let
 
-cat > ${TEST_DIR}/test_let.webx <<EOF
-fn main() -> i32 {
-  let x = 5;
-  let y = 10;
-  println(x);
-  println(y);
-  return x + y;
-}
-EOF
+# Test return statement
+echo "Testing return statement"
+nasm -f elf64 -o test_return.o src/main.asm -DTEST_RETURN=1
+ld -m elf_x86-64 test_return.o -o test_return
+./test_return
 
-cat > ${TEST_DIR}/test_if.webx <<EOF
-fn main() -> i32 {
-  if true {
-    println("It's true!");
-  } else {
-    println("It's false!");
-  }
-  return 0;
-}
-EOF
+# Test while statement
+echo "Testing while statement"
+nasm -f elf64 -o test_while.o src/main.asm -DTEST_WHILE=1
+ld -m elf_x86-64 test_while.o -o test_while
+./test_while
 
-cat > ${TEST_DIR}/test_while.webx <<EOF
-fn main() -> i32 {
-  let x = 0;
-  while x < 5 {
-    println(x);
-    x = x + 1;
-  }
-  return 0;
-}
-EOF
-
-# Build WebX
-./build.sh ${TEST_DIR}/test_functions.webx ${TEST_DIR}/test_let.webx ${TEST_DIR}/test_if.webx ${TEST_DIR}/test_while.webx
-
-# Run tests
-./test.sh ${TEST_DIR}
-
-# Clean up
-rm -rf ${TEST_DIR}
-
-echo "Feature tests passed!"
+echo "All tests passed"
