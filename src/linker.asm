@@ -1,118 +1,80 @@
-section .data
-; WebX linker module - adapted from KDX (KodPix) by Yug Merabtene
-; This module is responsible for linking the compiled object files
-; into a single executable file.
-
-section .bss
-; Reserve space for the linker's internal data structures
-linker_data resb 1024
-
 section .text
 global _start
+
 _start:
-; Initialize the linker's internal data structures
-    mov rsi, linker_data
+    ; Load the start address of the .data section
+    mov rsi, .data
+
+; Load the address of the .data section
+.data:
+    ; Reserve space for the symbol table
+    times 1024 db 0
+
+section .bss
+    ; Reserve space for the symbol table
+    resb 1024
+
+section .data
+    ; Symbol table offset
+    symtab_offset equ 0
+    ; Symbol table size
+    symtab_size equ 1024
+
+; Load the start address of the .bss section
+section .bss
+    ; Reserve space for the symbol table
+    resb 1024
+
+; Load the end address of the .bss section
+section .bss
+    ; Reserve space for the symbol table
+    resb 1024
+
+; Load the end address of the .data section
+section .data
+    ; Reserve space for the symbol table
+    resb 1024
+
+; Link the symbol table
+link_symbol_table:
+    ; Load the start address of the .data section
+    mov rsi, .data
+
+    ; Load the address of the symbol table
+    mov rdi, symtab_offset
+
+    ; Load the size of the symbol table
+    mov rdx, symtab_size
+
+    ; Call the linker
+    call linker
+
+; Define the linker function
+linker:
+    ; Initialize the symbol table
+    mov [rsi + rdi], rsi
+
+    ; Iterate over the symbol table
     mov rcx, 1024
-    xor rax, rax
-    rep stosb
+loop:
+    ; Check if the symbol table is full
+    cmp rcx, 0
+    je end_loop
 
-; Load the compiled object files into memory
-    mov rdi, object_files
-    call load_object_files
+    ; Check if the symbol table contains a null symbol
+    mov rax, [rsi + rdi]
+    test rax, rax
+    jz end_loop
 
-; Resolve external symbols and relocate code
-    mov rdi, linker_data
-    call resolve_symbols
+    ; Move to the next symbol in the table
+    add rdi, 8
 
-; Write the linked executable file to disk
-    mov rdi, output_file
-    call write_executable
+    ; Decrement the loop counter
+    dec rcx
 
-; Exit the program
-    xor rax, rax
+    ; Jump to the next iteration
+    jmp loop
+
+end_loop:
+    ; Return from the linker
     ret
-
-; Load the compiled object files into memory
-load_object_files:
-; This function loads the compiled object files into memory
-; and stores their contents in the linker's internal data structures.
-    push rbp
-    mov rbp, rsp
-    sub rsp, 16
-
-; Open the object file and read its contents into memory
-    mov rsi, object_file
-    mov rdx, 0
-    mov rax, 2
-    syscall
-    mov rdi, rax
-    mov rsi, object_buffer
-    mov rdx, 4096
-    mov rax, 0
-    syscall
-    mov rsi, object_buffer
-    mov rdx, 4096
-    call parse_object_file
-
-; Close the object file and repeat for the next file
-    mov rax, 3
-    syscall
-    add rsp, 16
-    pop rbp
-    ret
-
-; Resolve external symbols and relocate code
-resolve_symbols:
-; This function resolves external symbols and relocates code
-; in the compiled object files.
-    push rbp
-    mov rbp, rsp
-    sub rsp, 16
-
-; Iterate over the object files and resolve external symbols
-    mov rsi, linker_data
-    mov rcx, 1024
-    xor rax, rax
-    repne scasb
-    jne resolve_symbol
-
-; Relocate code in the object files
-    mov rsi, linker_data
-    mov rcx, 1024
-    xor rax, rax
-    repne scasb
-    jne relocate_code
-
-    add rsp, 16
-    pop rbp
-    ret
-
-; Write the linked executable file to disk
-write_executable:
-; This function writes the linked executable file to disk.
-    push rbp
-    mov rbp, rsp
-    sub rsp, 16
-
-; Open the output file and write the linked executable
-    mov rsi, output_file
-    mov rdx, 1
-    mov rax, 2
-    syscall
-    mov rdi, rax
-    mov rsi, linker_data
-    mov rdx, 1024
-    mov rax, 1
-    syscall
-
-; Close the output file
-    mov rax, 3
-    syscall
-    add rsp, 16
-    pop rbp
-    ret
-
-object_files db 'object1.o', 0, 'object2.o', 0
-object_file db 'object1.o', 0
-object_buffer times 4096 db 0
-output_file db 'output.exe', 0
